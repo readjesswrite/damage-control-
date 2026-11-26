@@ -159,6 +159,29 @@
     outline: none;
   }
 
+  /* The blank in "something wrong with my []" */
+  .blank {
+    display: inline-block;
+    min-width: 3.2em;
+    border-bottom: 1.5px solid var(--ink);
+    line-height: 1.1;
+    text-align: center;
+    transition: color .4s ease;
+  }
+  .blank.filled {
+    min-width: 0;
+    border-bottom-color: transparent;
+    color: var(--accent);
+  }
+  .choices .after {
+    text-align: center;
+  }
+  .choices .after p {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0 0 1.5rem;
+  }
+
   /* Placeholder ending page */
   .placeholder {
     text-align: center;
@@ -175,8 +198,28 @@
 
 <main>
 
-  <!-- ===================== THE SCENE ===================== -->
-  <section class="screen prose" id="story" aria-live="polite">
+  <!-- ===================== SCENE 1: THE DOCTOR'S OFFICE ===================== -->
+  <section class="screen prose" id="doctor" aria-live="polite">
+
+    <p class="reveal">My family doctor was suspended for a year amid allegations of stalking his ex-girlfriend and falsifying her medical records. He pleaded guilty to everything that could be proven, but dismissed the worst as she said. In another province, he might have lost his license. But here, in our understaffed corner of the country, with his charisma and five-star rating on RateMD, he’s back, and so am I, acting all innocent.</p>
+
+    <p class="reveal">He’s hunched at the computer, scrolling through what I assume are my last year of walk-in visits while I pick the skin around my nails and inspect the medical posters around the room for signs of AI. Finally, he swivels his body toward me, but keeps looking at the screen as he asks how I am.</p>
+
+    <p class="reveal">“I think there’s something wrong with my <span class="blank" id="blank"></span>,” I say, looking at his screen too, its reflective coating impenetrable at this angle.</p>
+
+    <div class="choices reveal" id="doctor-choices">
+      <button type="button" data-fill="brain">There’s something wrong with my brain</button>
+      <button type="button" data-fill="body">There’s something wrong with my body</button>
+      <div class="after" hidden>
+        <p>This path hasn't been written yet</p>
+        <button type="button" data-restart>Start over</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== SCENE: THE BUS STOP (saved, not linked in yet) ===================== -->
+  <section class="screen prose" id="story" aria-live="polite" hidden>
 
     <p class="reveal">At the bus stop I'm listening to the newest episode of Canadian True Crime when the man next to me waves to get my attention. I lift one ear of my headphones in case it's transit-related, but he just wants to tell me I look lost. I assure him I'm not, then turn away, but not all the way in case he tries to bash my head in.</p>
 
@@ -224,83 +267,91 @@
 <div class="hint" id="hint">Tap to continue</div>
 
 <script>
-  // Every element marked "reveal" appears one at a time, in the order it's written above.
+  // Tap anywhere to reveal the next paragraph or text message on the current scene.
   // A phone box appears together with its first text message.
-  var story = document.getElementById('story');
+  var FIRST_SCENE = 'doctor';
   var hint = document.getElementById('hint');
-  var steps = [];
+  var current, steps, next;
 
-  Array.prototype.forEach.call(story.querySelectorAll('.reveal'), function (el) {
-    if (el.classList.contains('phone')) return; // shown along with its first bubble
-    steps.push(el);
-  });
-
-  var next = 0;
-
-  function show(el) {
-    var phone = el.closest('.phone');
-    if (phone && !phone.classList.contains('shown')) reveal(phone);
-    reveal(el);
-    setTimeout(function () {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 30);
+  function goTo(id) {
+    document.querySelectorAll('.screen').forEach(function (s) { s.hidden = (s.id !== id); });
+    current = document.getElementById(id);
+    current.querySelectorAll('.reveal').forEach(function (el) { el.classList.remove('shown'); });
+    steps = Array.prototype.filter.call(current.querySelectorAll('.reveal'), function (el) {
+      return !el.classList.contains('phone');
+    });
+    next = 0;
+    hint.classList.toggle('gone', steps.length === 0);
+    window.scrollTo(0, 0);
+    advance(); // first paragraph is visible right away
   }
 
   function reveal(el) {
-    el.style.display = 'block';
-    if (el.classList.contains('choices')) el.style.display = 'flex';
-    void el.offsetWidth; // let the fade-in animation start
+    el.style.display = el.classList.contains('choices') ? 'flex' : 'block';
+    void el.offsetWidth; // let the fade-in start
     el.classList.add('shown');
     el.style.display = '';
   }
 
   function advance() {
-    if (next >= steps.length) return;
-    show(steps[next]);
-    next++;
+    if (!steps || next >= steps.length) return;
+    var el = steps[next++];
+    var phone = el.closest('.phone');
+    if (phone && !phone.classList.contains('shown')) reveal(phone);
+    reveal(el);
+    if (next > 1) setTimeout(function () {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 30);
     if (next >= steps.length) hint.classList.add('gone');
   }
 
-  function start() {
-    Array.prototype.forEach.call(document.querySelectorAll('.reveal'), function (el) {
-      el.classList.remove('shown');
-    });
-    document.querySelectorAll('.screen').forEach(function (s) { s.hidden = (s.id !== 'story'); });
-    next = 0;
-    hint.classList.remove('gone');
-    window.scrollTo(0, 0);
-    advance(); // first paragraph is visible right away
+  function resetBlank() {
+    var blank = document.getElementById('blank');
+    blank.textContent = '';
+    blank.classList.remove('filled');
+    var box = document.getElementById('doctor-choices');
+    box.querySelectorAll('[data-fill]').forEach(function (b) { b.hidden = false; });
+    box.querySelector('.after').hidden = true;
   }
 
   // Tap anywhere (except on a button) to continue
   document.addEventListener('click', function (e) {
     if (e.target.closest('button')) return;
-    if (!document.getElementById('story').hidden) advance();
+    advance();
   });
   // Keyboard: space, enter, or right arrow also continue
   document.addEventListener('keydown', function (e) {
     if (e.target.closest && e.target.closest('button')) return;
     if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
       e.preventDefault();
-      if (!document.getElementById('story').hidden) advance();
+      advance();
     }
   });
 
-  // Choice buttons
-  document.querySelectorAll('[data-go]').forEach(function (b) {
+  // Doctor's office choice: fill in the blank, then show the "not written yet" note
+  document.querySelectorAll('[data-fill]').forEach(function (b) {
     b.addEventListener('click', function () {
-      document.querySelectorAll('.screen').forEach(function (s) { s.hidden = (s.id !== b.dataset.go); });
-      hint.classList.add('gone');
-      window.scrollTo(0, 0);
+      var blank = document.getElementById('blank');
+      blank.textContent = b.dataset.fill;
+      blank.classList.add('filled');
+      blank.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var box = document.getElementById('doctor-choices');
+      box.querySelectorAll('[data-fill]').forEach(function (x) { x.hidden = true; });
+      setTimeout(function () { box.querySelector('.after').hidden = false; }, 700);
     });
   });
 
-  // Start over buttons
-  document.querySelectorAll('[data-restart]').forEach(function (b) {
-    b.addEventListener('click', start);
+  // Bus stop choices (not linked in yet)
+  document.querySelectorAll('[data-go]').forEach(function (b) {
+    b.addEventListener('click', function () { goTo(b.dataset.go); });
   });
 
-  start();
+  // Start over
+  document.querySelectorAll('[data-restart]').forEach(function (b) {
+    b.addEventListener('click', function () { resetBlank(); goTo(FIRST_SCENE); });
+  });
+
+  goTo(FIRST_SCENE);
 </script>
 </body>
 </html>
