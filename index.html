@@ -205,11 +205,11 @@
 
     <p class="reveal">He’s hunched at the computer, scrolling through what I assume are my last year of walk-in visits while I pick the skin around my nails and inspect the medical posters around the room for signs of AI. Finally, he swivels his body toward me, but keeps looking at the screen as he asks how I am.</p>
 
-    <p class="reveal">“I think there’s something wrong with my <span class="blank" id="blank"></span>,” I say, looking at his screen too, its reflective coating impenetrable at this angle.</p>
+    <p class="reveal">“I think there’s something wrong with my <span class="blank" id="blank"></span><span id="blank-punct">,</span>” I say, looking at his screen too, its reflective coating impenetrable at this angle.</p>
 
     <div class="choices reveal" id="doctor-choices">
-      <button type="button" data-fill="brain" data-branch="brain-branch">There’s something wrong with my brain</button>
-      <button type="button" data-fill="body">There’s something wrong with my body</button>
+      <button type="button" data-fill="brain" data-punct="," data-branch="brain-branch">There’s something wrong with my brain</button>
+      <button type="button" data-fill="head" data-punct="" data-branch="head-branch">There’s something wrong with my body</button>
       <div class="after" hidden>
         <p>This path hasn't been written yet</p>
         <button type="button" data-restart>Start over</button>
@@ -242,6 +242,40 @@
       <div class="choices reveal">
         <button type="button" data-unwritten>Take it</button>
         <button type="button" data-unwritten>Refuse</button>
+        <div class="after" hidden>
+          <p>This path hasn't been written yet</p>
+          <button type="button" data-restart>Start over</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== BODY / HEAD path (continues straight on from the filled-in line above) ===== -->
+    <div class="branch" id="head-branch" hidden>
+
+      <p class="reveal">“Your head?”</p>
+
+      <p class="reveal">“Yeah, constant headaches. I've never had them before. I tried going to the walk-in while you were—but they said to talk to my family doctor, so yeah...”</p>
+
+      <p class="reveal">Before the charges were laid, he’d posted vlogs to his Facebook, earnest monologues decrying the attacks on his character, keeping vague about what the accusations were but promising vindication. His loyal base of middle aged women ate it up. I believed him too, even commenting something to the effect. After the article came out, I went back to delete it, but the videos had been taken down.</p>
+
+      <p class="reveal">“I saw that. It shouldn't have been an issue. Maybe if you tried another doctor.”</p>
+
+      <p class="reveal">“Oh, yeah.” I said, somewhere between a question and a confirmation.</p>
+
+      <p class="reveal">“When do they usually happen?”</p>
+
+      <p class="reveal">I tell him—when I sleep too much, or eat too little, or think too hard. They make me not want to have a body or see my friends. I don't mention that.</p>
+
+      <p class="reveal">“Are they getting worse, or the same?"</p>
+
+      <p class="reveal">“Worse."</p>
+
+      <p class="reveal">He nods, typing. "Let's start with a blood test.'</p>
+
+      <div class="choices reveal">
+        <button type="button" data-unwritten>Take the requisition</button>
+        <button type="button" data-unwritten>Ask for pain meds</button>
         <div class="after" hidden>
           <p>This path hasn't been written yet</p>
           <button type="button" data-restart>Start over</button>
@@ -343,6 +377,7 @@
     var blank = document.getElementById('blank');
     blank.textContent = '';
     blank.classList.remove('filled');
+    document.getElementById('blank-punct').textContent = ',';
     var box = document.getElementById('doctor-choices');
     box.querySelectorAll('[data-fill]').forEach(function (b) { b.hidden = false; });
     box.querySelector('.after').hidden = true;
@@ -371,6 +406,7 @@
     b.addEventListener('click', function () {
       var blank = document.getElementById('blank');
       blank.textContent = b.dataset.fill;
+      document.getElementById('blank-punct').textContent = b.dataset.punct;
       blank.classList.add('filled');
       blank.scrollIntoView({ behavior: 'smooth', block: 'center' });
       var box = document.getElementById('doctor-choices');
