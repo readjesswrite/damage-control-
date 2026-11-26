@@ -53,7 +53,7 @@
     min-height: 100vh;
   }
 
-  .screen[hidden] { display: none; }
+  .screen[hidden], .choices[hidden], [hidden] { display: none !important; }
 
   /* Story prose */
   .prose p {
@@ -208,12 +208,46 @@
     <p class="reveal">“I think there’s something wrong with my <span class="blank" id="blank"></span>,” I say, looking at his screen too, its reflective coating impenetrable at this angle.</p>
 
     <div class="choices reveal" id="doctor-choices">
-      <button type="button" data-fill="brain">There’s something wrong with my brain</button>
+      <button type="button" data-fill="brain" data-branch="brain-branch">There’s something wrong with my brain</button>
       <button type="button" data-fill="body">There’s something wrong with my body</button>
       <div class="after" hidden>
         <p>This path hasn't been written yet</p>
         <button type="button" data-restart>Start over</button>
       </div>
+    </div>
+
+    <!-- ===== BRAIN path (continues straight on from the filled-in line above) ===== -->
+    <div class="branch" id="brain-branch" hidden>
+
+      <p class="reveal">“Your brain?”</p>
+
+      <p class="reveal">“Like, chemically. I tried going to the walk-in while you were—but they said to talk to my family doctor, so yeah...”</p>
+
+      <p class="reveal">Before the charges were laid, he’d posted vlogs to his Facebook, earnest monologues decrying the attacks on his character, keeping vague about what the accusations were but promising vindication. His loyal base of middle aged women ate it up. I believed him too, even commenting something to the effect. After the article came out, I went back to delete it, but the videos had been taken down.</p>
+
+      <p class="reveal">“I saw that. It shouldn't have been an issue. Maybe if you tried another doctor.”</p>
+
+      <p class="reveal">“Oh, yeah.” I said, somewhere between a question and a confirmation.</p>
+
+      <p class="reveal">“Tell me what’s happening.”</p>
+
+      <p class="reveal">I list my symptoms: I sleep too much, eat too little, I hate myself, and I'm becoming not too fond of my friends either. I don’t mention the headaches in case he thinks that’s the issue.</p>
+
+      <p class="reveal">“Any triggering event?”</p>
+
+      <p class="reveal">“No. Just a trajectory I’m noticing.”</p>
+
+      <p class="reveal">He nods, typing. “Well, let’s get ahead of it before winter.” He hands me a prescription.</p>
+
+      <div class="choices reveal">
+        <button type="button" data-unwritten>Take it</button>
+        <button type="button" data-unwritten>Refuse</button>
+        <div class="after" hidden>
+          <p>This path hasn't been written yet</p>
+          <button type="button" data-restart>Start over</button>
+        </div>
+      </div>
+
     </div>
 
   </section>
@@ -278,7 +312,7 @@
     current = document.getElementById(id);
     current.querySelectorAll('.reveal').forEach(function (el) { el.classList.remove('shown'); });
     steps = Array.prototype.filter.call(current.querySelectorAll('.reveal'), function (el) {
-      return !el.classList.contains('phone');
+      return !el.classList.contains('phone') && !el.closest('.branch');
     });
     next = 0;
     hint.classList.toggle('gone', steps.length === 0);
@@ -312,6 +346,10 @@
     var box = document.getElementById('doctor-choices');
     box.querySelectorAll('[data-fill]').forEach(function (b) { b.hidden = false; });
     box.querySelector('.after').hidden = true;
+    box.hidden = false;
+    document.querySelectorAll('.branch').forEach(function (br) { br.hidden = true; });
+    document.querySelectorAll('[data-unwritten]').forEach(function (x) { x.hidden = false; });
+    document.querySelectorAll('.branch .after').forEach(function (x) { x.hidden = true; });
   }
 
   // Tap anywhere (except on a button) to continue
@@ -337,7 +375,26 @@
       blank.scrollIntoView({ behavior: 'smooth', block: 'center' });
       var box = document.getElementById('doctor-choices');
       box.querySelectorAll('[data-fill]').forEach(function (x) { x.hidden = true; });
-      setTimeout(function () { box.querySelector('.after').hidden = false; }, 700);
+      var branch = b.dataset.branch && document.getElementById(b.dataset.branch);
+      if (branch) {
+        // This path is written: carry on, tap by tap
+        box.hidden = true;
+        branch.hidden = false;
+        steps = steps.concat(Array.prototype.slice.call(branch.querySelectorAll('.reveal')));
+        hint.classList.remove('gone');
+      } else {
+        setTimeout(function () { box.querySelector('.after').hidden = false; }, 700);
+      }
+    });
+  });
+
+  // Choices whose paths aren't written yet
+  document.querySelectorAll('[data-unwritten]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var box = b.closest('.choices');
+      box.querySelectorAll('[data-unwritten]').forEach(function (x) { x.hidden = true; });
+      box.querySelector('.after').hidden = false;
+      box.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   });
 
