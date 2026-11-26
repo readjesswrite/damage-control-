@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Damage Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fbf8f3;
+    --ink: #1f1c18;
+    --muted: #8a8277;
+    --rule: #e4ddd2;
+    --me: #2f6fe4;
+    --me-ink: #ffffff;
+    --them: #e9e6e1;
+    --them-ink: #1f1c18;
+    --phone: #ffffff;
+    --accent: #7a2e1f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #16140f;
+      --ink: #ece6dc;
+      --muted: #9a9286;
+      --rule: #2e2a23;
+      --me: #3b7cf0;
+      --them: #2c2924;
+      --them-ink: #ece6dc;
+      --phone: #1d1b16;
+      --accent: #e08b70;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Lora", Georgia, "Times New Roman", serif;
+    font-size: 19px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  main {
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: 3.5rem 1.25rem 9rem;
+    min-height: 100vh;
+  }
+
+  .screen[hidden] { display: none; }
+
+  /* Story prose */
+  .prose p {
+    margin: 0 0 1.4em;
+  }
+
+  /* Things that appear one tap at a time */
+  .reveal {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity .45s ease, transform .45s ease;
+  }
+  .reveal.shown {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal:not(.shown) { display: none; }
+
+  /* The phone */
+  .phone {
+    background: var(--phone);
+    border: 1px solid var(--rule);
+    border-radius: 22px;
+    padding: 0.9rem 0.9rem 1.1rem;
+    margin: 0.5rem 0 2rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+  .phone-header {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    padding-bottom: 0.7rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .thread {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .bubble {
+    max-width: 78%;
+    padding: 8px 13px;
+    border-radius: 18px;
+    word-wrap: break-word;
+  }
+  .bubble.me {
+    align-self: flex-end;
+    background: var(--me);
+    color: var(--me-ink);
+    border-bottom-right-radius: 5px;
+  }
+  .bubble.them {
+    align-self: flex-start;
+    background: var(--them);
+    color: var(--them-ink);
+    border-bottom-left-radius: 5px;
+  }
+
+  /* Tap hint */
+  .hint {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: 0;
+    padding: 1.4rem 1rem calc(1.4rem + env(safe-area-inset-bottom));
+    text-align: center;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: linear-gradient(to top, var(--paper) 55%, transparent);
+    pointer-events: none;
+    transition: opacity .3s ease;
+  }
+  .hint.gone { opacity: 0; }
+
+  /* Choices */
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+  }
+  button {
+    font: inherit;
+    font-size: 17px;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    padding: 0.85rem 1.2rem;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease;
+  }
+  button:hover, button:focus-visible {
+    background: var(--ink);
+    color: var(--paper);
+    outline: none;
+  }
+
+  /* Placeholder ending page */
+  .placeholder {
+    text-align: center;
+    padding-top: 25vh;
+  }
+  .placeholder p {
+    font-style: italic;
+    color: var(--muted);
+    margin: 0 0 2rem;
+  }
+</style>
+</head>
+<body>
+
+<main>
+
+  <!-- ===================== THE SCENE ===================== -->
+  <section class="screen prose" id="story" aria-live="polite">
+
+    <p class="reveal">At the bus stop I'm listening to the newest episode of Canadian True Crime when the man next to me waves to get my attention. I lift one ear of my headphones in case it's transit-related, but he just wants to tell me I look lost. I assure him I'm not, then turn away, but not all the way in case he tries to bash my head in.</p>
+
+    <p class="reveal">When I look at my phone, I see a text from Rebecca. She can't make brunch, again.</p>
+
+    <div class="phone reveal">
+      <div class="phone-header">Rebecca</div>
+      <div class="thread">
+        <div class="bubble me reveal">What's wrong?</div>
+        <div class="bubble them reveal">I have dysania :(</div>
+        <div class="bubble me reveal">Dystentry?</div>
+        <div class="bubble them reveal">Dysania. Inability to get out of bed. It's a real thing.</div>
+        <div class="bubble me reveal">You should have just said dysentry.</div>
+        <div class="bubble them reveal">I would never lie to you.</div>
+        <div class="bubble me reveal">Yea right</div>
+        <div class="bubble them reveal">Because when I really need to lie I would need you to believe me :)</div>
+        <div class="bubble me reveal">Didn't realize we were still in the trust building stage.</div>
+        <div class="bubble them reveal">Always :) :) How was your date??</div>
+      </div>
+    </div>
+
+    <p class="reveal">I stuff my phone in my bag with a huff. The man asks me what's wrong and I move around to the back of the shelter.</p>
+
+    <div class="choices reveal">
+      <button type="button" data-go="bus">Get on the bus</button>
+      <button type="button" data-go="uber">Call an Uber</button>
+    </div>
+
+  </section>
+
+  <!-- ===================== PATH: GET ON THE BUS ===================== -->
+  <section class="screen placeholder" id="bus" hidden>
+    <p>This path hasn't been written yet</p>
+    <button type="button" data-restart>Start over</button>
+  </section>
+
+  <!-- ===================== PATH: CALL AN UBER ===================== -->
+  <section class="screen placeholder" id="uber" hidden>
+    <p>This path hasn't been written yet</p>
+    <button type="button" data-restart>Start over</button>
+  </section>
+
+</main>
+
+<div class="hint" id="hint">Tap to continue</div>
+
+<script>
+  // Every element marked "reveal" appears one at a time, in the order it's written above.
+  // A phone box appears together with its first text message.
+  var story = document.getElementById('story');
+  var hint = document.getElementById('hint');
+  var steps = [];
+
+  Array.prototype.forEach.call(story.querySelectorAll('.reveal'), function (el) {
+    if (el.classList.contains('phone')) return; // shown along with its first bubble
+    steps.push(el);
+  });
+
+  var next = 0;
+
+  function show(el) {
+    var phone = el.closest('.phone');
+    if (phone && !phone.classList.contains('shown')) reveal(phone);
+    reveal(el);
+    setTimeout(function () {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 30);
+  }
+
+  function reveal(el) {
+    el.style.display = 'block';
+    if (el.classList.contains('choices')) el.style.display = 'flex';
+    void el.offsetWidth; // let the fade-in animation start
+    el.classList.add('shown');
+    el.style.display = '';
+  }
+
+  function advance() {
+    if (next >= steps.length) return;
+    show(steps[next]);
+    next++;
+    if (next >= steps.length) hint.classList.add('gone');
+  }
+
+  function start() {
+    Array.prototype.forEach.call(document.querySelectorAll('.reveal'), function (el) {
+      el.classList.remove('shown');
+    });
+    document.querySelectorAll('.screen').forEach(function (s) { s.hidden = (s.id !== 'story'); });
+    next = 0;
+    hint.classList.remove('gone');
+    window.scrollTo(0, 0);
+    advance(); // first paragraph is visible right away
+  }
+
+  // Tap anywhere (except on a button) to continue
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('button')) return;
+    if (!document.getElementById('story').hidden) advance();
+  });
+  // Keyboard: space, enter, or right arrow also continue
+  document.addEventListener('keydown', function (e) {
+    if (e.target.closest && e.target.closest('button')) return;
+    if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (!document.getElementById('story').hidden) advance();
+    }
+  });
+
+  // Choice buttons
+  document.querySelectorAll('[data-go]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.screen').forEach(function (s) { s.hidden = (s.id !== b.dataset.go); });
+      hint.classList.add('gone');
+      window.scrollTo(0, 0);
+    });
+  });
+
+  // Start over buttons
+  document.querySelectorAll('[data-restart]').forEach(function (b) {
+    b.addEventListener('click', start);
+  });
+
+  start();
+</script>
+</body>
+</html>
